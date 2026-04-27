@@ -4,6 +4,10 @@ A terminal-based version of the classic arcade game Space Invaders clone written
 
 I created this as an early project focused on how low-level system calls can be used to build interactive applications in a console environment.
 
+## Demonstration
+
+![Gameplay Demo](assets/demo.gif)
+
 
 ## Features
 
