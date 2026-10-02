@@ -1,75 +1,64 @@
 # space-invaders-c
 
-A terminal-based version of the classic arcade game Space Invaders clone written in C, which implements real-time input with `select()`, a custom game loop, and basic collision detection.
+A terminal version of Space Invaders written in C. It runs a fixed-tick game loop, reads the keyboard without blocking using `select()`, and draws the game from a 2D character buffer.
 
-I created this as an early project focused on how low-level system calls can be used to build interactive applications in a console environment.
+I built this as an early project to learn how low-level POSIX calls (terminal settings, `select()`, `read()`) can be used to make an interactive program in a plain console.
 
 ## Demonstration
 
 ![Gameplay Demo](assets/demo.gif)
 
+## How it works
 
-## Features
+* **Input:** the terminal is switched out of line-buffered mode with `termios` (`ICANON` and `ECHO` off), so each key press arrives immediately. The original settings are restored on exit, including on Ctrl+C.
+* **Game loop:** each tick draws the screen, moves the aliens, moves the bullet, then waits up to 500 ms for a key with `select()` so the loop never stalls.
+* **Rendering:** the game is drawn into `gameField[HEIGHT][WIDTH]` and printed each frame after an ANSI clear-screen sequence.
+* **Aliens:** move as a formation; when any alien would leave the grid, they all reverse and drop one row. You lose if one reaches the bottom row.
+* **Shooting:** one bullet at a time. A hit is detected whether the bullet moves into an alien or an alien moves into the bullet. Each alien is worth 10 points.
 
-* Real-time input handling using `select()` for non-blocking keyboard input
-* Custom game loop with controlled timing for smooth terminal gameplay
-* Dynamic enemy movement with boundary detection and directional switching
-* Collision detection system between player projectiles and enemies
-* Lightweight rendering using a 2D character buffer (`gameField`)
-* Single active projectile system to manage shooting state efficiently
+## How to run
 
-
-##  How to Run
 ### Requirements
 
-* GCC compiler
-* Unix-like environment (Linux, macOS, or WSL on Windows)
-
+* GCC and `make`
+* A Unix-like environment (Linux, macOS, or WSL on Windows)
 
 ### Steps
 
 ```bash
-git clone https://github.com/your-username/space-invaders-c.git
+git clone https://github.com/rohanchennupati-sudo/space-invaders-c.git
 cd space-invaders-c
 make
 ./game
 ```
 
-
 ### Running on Windows
 
-This project uses Unix-specific system calls (`unistd.h`, `select()`), so it is recommended to run it using:
+The game uses POSIX headers (`unistd.h`, `termios.h`, `sys/select.h`), so run it in WSL or on Linux/macOS. Native Windows would need a different input layer (for example `conio.h` or PDCurses).
 
-* **WSL (Windows Subsystem for Linux)**, or
-* a Linux/macOS environment
+## Controls
 
-Running directly via Windows compilers may require modifications.
+* `a`: move left
+* `d`: move right
+* `space`: shoot
+* `q`: quit
 
-
-## Game Controls
-
-* `a` → Move left
-* `d` → Move right
-* `space` → Shoot
-
-
-## Project Structure
+## Project structure
 
 ```
 space-invaders-c/
-│── src/
-│   └── main.c        # Core game logic
-│── Makefile          # Build configuration
-│── README.md
-│── .gitignore
+├── src/
+│   └── main.c        # game logic, rendering and input
+├── assets/
+│   └── demo.gif
+├── Makefile
+├── README.md
+└── LICENSE
 ```
 
+## Possible improvements
 
-## Future Improvements
-
-* Add cross-platform input handling (remove Unix dependency)
-* Introduce multiple enemy types and levels
-* Implement scoring persistence
-* Refactor into modular components (separate game logic, rendering, input)
-
-
+* A fixed timestep, so the game speed doesn't change while keys are pressed
+* Split into separate files for input, game logic and rendering, with a `GameState` struct instead of globals
+* More enemy types, alien bullets and levels
+* Saving a high score
